@@ -1,11 +1,19 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { Volume2, VolumeX } from 'lucide-vue-next';
 
 // State to track audio status
 const isPlaying = ref(false); // Start with false to handle autoplay restrictions
 const audioElement = ref(null);
 const hasInteracted = ref(false);
+
+// Detect if on mobile device
+const isMobile = computed(() => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth <= 768;
+  }
+  return false;
+});
 
 // Function to toggle audio on/off
 function toggleAudio() {
@@ -69,7 +77,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="tv-audio-container">
+  <div class="tv-audio-container" :class="{ 'mobile': isMobile }">
     <!-- Hidden audio element -->
     <audio ref="audioElement" src="/audio/whitenoise-34872.mp3" preload="auto"></audio>
     
@@ -81,8 +89,8 @@ onMounted(() => {
       :aria-label="isPlaying ? 'Turn off TV audio' : 'Turn on TV audio'"
     >
       <span class="button-icon">
-        <Volume2 v-if="isPlaying" size="16" />
-        <VolumeX v-else size="16" />
+        <Volume2 v-if="isPlaying" :size="isMobile ? 18 : 16" />
+        <VolumeX v-else :size="isMobile ? 18 : 16" />
       </span>
       <span class="button-text">{{ isPlaying ? 'Sound ON' : 'Sound OFF' }}</span>
     </button>
@@ -129,5 +137,29 @@ onMounted(() => {
 .button-text {
   font-size: 12px;
   font-weight: bold; /* Make text bolder for readability */
+}
+
+/* Mobile optimizations */
+.tv-audio-container.mobile .audio-toggle-button {
+  padding: 10px 15px; /* Larger touch target */
+  width: auto;
+  min-width: 120px;
+}
+
+.tv-audio-container.mobile .button-text {
+  font-size: 14px; /* Larger text for better readability */
+}
+
+/* For small mobile screens */
+@media (max-width: 480px) {
+  .tv-audio-container.mobile .audio-toggle-button {
+    min-width: 110px;
+  }
+}
+
+/* Active state for mobile - improve touch feedback */
+.tv-audio-container.mobile .audio-toggle-button:active {
+  transform: scale(0.98);
+  opacity: 1;
 }
 </style> 

@@ -12,6 +12,7 @@ This project creates an effect of a TV with static noise in a living room. The T
 - Includes TV scan lines, flickering, and vignette for an authentic look
 - Layered design: noise in the background with the room image on top
 - Responsive design that works on different screen sizes
+- Mobile-friendly with touch optimizations and performance enhancements
 - SEO optimized with proper meta tags and semantic HTML
 
 ## Important Note About the Image
@@ -58,6 +59,27 @@ You can customize the TV noise effect by modifying the shader code in `EnhancedT
 - Change the flickering frequency
 - Modify the vignette effect
 - Alter the color tint for different looks
+
+## Mobile Optimization
+
+The application has been optimized for mobile devices with:
+
+1. **Responsive UI**: Interface elements adapt to screen size
+2. **Touch-friendly Controls**: Larger tap targets for buttons on mobile
+3. **Performance Optimizations**:
+   - Lower resolution rendering on mobile devices
+   - Simplified shaders for better performance
+   - Frame rate adjustments for battery efficiency
+   - Touch event optimizations to prevent unnecessary actions
+4. **Mobile Display Improvements**:
+   - Proper viewport configuration
+   - iOS-specific fixes for full-screen display
+   - Horizontal layout for controls on small screens
+   - Adjusted opacity and size of UI elements
+5. **Mobile Browser Compatibility**:
+   - Special handling for iOS Safari
+   - Android Chrome optimizations
+   - PWA (Progressive Web App) capability
 
 ## SEO Implementation
 

@@ -1,7 +1,7 @@
 <script setup>
 import EnhancedTVNoise from './EnhancedTVNoise.vue';
 import TVAudio from './TVAudio.vue';
-import { onMounted, ref, onUnmounted } from 'vue';
+import { onMounted, ref, onUnmounted, computed } from 'vue';
 import { Maximize } from 'lucide-vue-next';
 
 // Page metadata - helps for SEO when using Vue Meta or similar solutions
@@ -11,6 +11,14 @@ const pageDescription = 'Experience realistic, nostalgic TV static noise in a co
 // State for UI visibility
 const uiVisible = ref(true);
 let hideTimeout = null;
+
+// Detect mobile device
+const isMobile = computed(() => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth <= 768;
+  }
+  return false;
+});
 
 // Function to show UI controls
 function showUIControls() {
@@ -36,11 +44,20 @@ function toggleFullScreen() {
   }
 }
 
+// Update layout on resize
+function handleResize() {
+  // No specific resize handling needed - CSS will handle responsive layout
+}
+
 // Auto enter fullscreen on mount
 onMounted(() => {
   // Small delay to ensure everything is loaded
   setTimeout(() => {
-    toggleFullScreen();
+    // Only auto-enter fullscreen on non-mobile devices
+    // Mobile browsers have inconsistent fullscreen behavior
+    if (!isMobile.value) {
+      toggleFullScreen();
+    }
     
     // Update document title dynamically for better SEO
     document.title = pageTitle;
@@ -52,6 +69,9 @@ onMounted(() => {
   document.addEventListener('click', showUIControls);
   document.addEventListener('touchstart', showUIControls);
   
+  // Add resize listener
+  window.addEventListener('resize', handleResize);
+  
   // Initial hide timeout
   showUIControls();
 });
@@ -62,6 +82,7 @@ onUnmounted(() => {
   document.removeEventListener('keydown', showUIControls);
   document.removeEventListener('click', showUIControls);
   document.removeEventListener('touchstart', showUIControls);
+  window.removeEventListener('resize', handleResize);
   
   if (hideTimeout) {
     clearTimeout(hideTimeout);
@@ -91,7 +112,7 @@ onUnmounted(() => {
     />
     
     <!-- UI Controls container with transition -->
-    <div class="ui-controls" :class="{ 'ui-hidden': !uiVisible }">
+    <div class="ui-controls" :class="{ 'ui-hidden': !uiVisible, 'mobile': isMobile }">
       <!-- TV Audio Component with toggle button -->
       <TVAudio />
       
@@ -109,7 +130,7 @@ onUnmounted(() => {
     </div>
     
     <!-- Copyright footer with improved semantics -->
-    <footer class="copyright-footer" :class="{ 'ui-hidden': !uiVisible }">
+    <footer class="copyright-footer" :class="{ 'ui-hidden': !uiVisible, 'mobile': isMobile }">
       <p>Created by <a href="https://www.0xechan.xyz" target="_blank" rel="noopener noreferrer">0xechan</a></p>
     </footer>
   </main>
@@ -155,6 +176,17 @@ onUnmounted(() => {
   transition: opacity 0.5s ease-in-out;
 }
 
+/* Mobile styles for UI controls */
+.ui-controls.mobile {
+  bottom: 60px; /* More space from bottom on mobile */
+  right: 50%;
+  transform: translateX(50%);
+  flex-direction: row; /* Horizontal layout on mobile */
+  width: auto;
+  justify-content: center;
+  gap: 15px; /* Slightly larger gap between buttons on mobile */
+}
+
 /* Hidden state for UI elements */
 .ui-hidden {
   opacity: 0;
@@ -183,6 +215,20 @@ onUnmounted(() => {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+/* Mobile device adjustments for controls */
+@media (max-width: 768px) {
+  .fullscreen-button {
+    padding: 10px 15px; /* Larger tap target on mobile */
+    width: auto;
+    min-width: 120px;
+  }
+  
+  /* Larger font for better readability on small screens */
+  .button-text {
+    font-size: 14px;
+  }
+}
+
 .button-icon {
   display: flex;
   align-items: center;
@@ -207,6 +253,12 @@ onUnmounted(() => {
   transition: opacity 0.5s ease-in-out;
 }
 
+/* Mobile styles for footer */
+.copyright-footer.mobile {
+  bottom: 20px; /* Move up on mobile to avoid conflicts with controls */
+  font-size: 11px;
+}
+
 .copyright-footer p {
   color: rgba(255, 255, 255, 0.3);
   margin: 0;
@@ -220,5 +272,26 @@ onUnmounted(() => {
 
 .copyright-footer a:hover {
   color: rgba(255, 255, 255, 0.7);
+}
+
+/* Additional mobile optimization */
+@media (max-width: 480px) {
+  .room-image {
+    object-position: center; /* Center the image on very small screens */
+  }
+  
+  .ui-controls.mobile {
+    bottom: 50px;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+  }
+}
+
+/* Prevent overscroll on iOS */
+@supports (-webkit-touch-callout: none) {
+  .living-room-container {
+    height: -webkit-fill-available;
+  }
 }
 </style> 

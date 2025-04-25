@@ -1,10 +1,18 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import * as THREE from 'three';
 
 const containerRef = ref(null);
 let scene, camera, renderer, material, clock;
 let animationFrameId;
+
+// Detect if on mobile device to reduce quality for better performance
+const isMobile = computed(() => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+  return false;
+});
 
 onMounted(() => {
   initThreeJS();
@@ -39,11 +47,19 @@ function initThreeJS() {
   scene = new THREE.Scene();
   camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0, 1);
   
-  // Renderer setup
+  // Renderer setup with optimizations for mobile
   renderer = new THREE.WebGLRenderer({ 
     alpha: true,
-    antialias: true
+    antialias: !isMobile.value, // Disable antialiasing on mobile for better performance
+    powerPreference: 'high-performance'
   });
+  
+  // Optimize renderer for mobile
+  if (isMobile.value) {
+    renderer.setPixelRatio(window.devicePixelRatio > 1 ? 1.5 : 1); // Lower pixel ratio on mobile
+  } else {
+    renderer.setPixelRatio(window.devicePixelRatio);
+  }
   
   // Set initial size - will be resized properly in onResize()
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -58,7 +74,33 @@ function initThreeJS() {
     }
   `;
   
-  const fragmentShader = `
+  // Simplified shader for mobile devices
+  const fragmentShaderMobile = `
+    uniform float time;
+    varying vec2 vUv;
+    
+    float random(vec2 co) {
+      return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+    }
+    
+    void main() {
+      // Basic static with reduced computation
+      float r = random(vUv + time * 0.5);
+      
+      // Simplified scan lines (fewer calculations)
+      float scanLine = step(0.5, fract(vUv.y * 50.0)) * 0.1 + 0.9;
+      
+      // Basic vignette
+      float vignette = 1.0 - length(vUv - 0.5) * 1.2;
+      
+      vec3 color = vec3(r * scanLine * vignette);
+      
+      gl_FragColor = vec4(color, 0.9);
+    }
+  `;
+  
+  // Full quality shader for desktop
+  const fragmentShaderDesktop = `
     uniform float time;
     varying vec2 vUv;
     
@@ -88,6 +130,9 @@ function initThreeJS() {
     }
   `;
   
+  // Choose shader based on device
+  const fragmentShader = isMobile.value ? fragmentShaderMobile : fragmentShaderDesktop;
+  
   // Create material with shader
   material = new THREE.ShaderMaterial({
     uniforms: {
@@ -111,7 +156,9 @@ function animate() {
   animationFrameId = requestAnimationFrame(animate);
   
   if (material && clock) {
-    material.uniforms.time.value = clock.getElapsedTime();
+    // Update time uniform less frequently on mobile
+    const timeValue = clock.getElapsedTime();
+    material.uniforms.time.value = isMobile.value ? Math.floor(timeValue * 10) / 10 : timeValue;
   }
   
   if (renderer && scene && camera) {
@@ -131,7 +178,7 @@ function onResize() {
 </script>
 
 <template>
-  <div ref="containerRef" class="tv-noise-container"></div>
+  <div ref="containerRef" class="tv-noise-container" :class="{ 'mobile': isMobile }"></div>
 </template>
 
 <style scoped>
@@ -147,5 +194,17 @@ canvas {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Prevent potential performance issues on mobile */
+.tv-noise-container.mobile canvas {
+  touch-action: none; /* Prevent unnecessary touch events */
+}
+
+@media (max-width: 480px) {
+  /* Further optimization for very small screens */
+  .tv-noise-container.mobile canvas {
+    image-rendering: optimizeSpeed; /* Improves performance on low-end devices */
+  }
 }
 </style> 
