@@ -1,6 +1,10 @@
 <script setup>
 import EnhancedTVNoise from './EnhancedTVNoise.vue';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+
+// Page metadata - helps for SEO when using Vue Meta or similar solutions
+const pageTitle = 'TV Magic Noise - Nostalgic TV Static Experience';
+const pageDescription = 'Experience realistic, nostalgic TV static noise in a cozy living room setting. Perfect ambient display for relaxation or decoration.';
 
 // Function to toggle fullscreen mode
 function toggleFullScreen() {
@@ -16,29 +20,44 @@ onMounted(() => {
   // Small delay to ensure everything is loaded
   setTimeout(() => {
     toggleFullScreen();
+    
+    // Update document title dynamically for better SEO
+    document.title = pageTitle;
+    // You could add meta description here if using vue-meta or similar
   }, 500);
 });
 </script>
 
 <template>
-  <div class="living-room-container">
+  <main class="living-room-container" role="main" aria-label="TV Static Living Room Experience">
     <!-- Noise layer that fills the entire screen -->
-    <div class="noise-background">
+    <section class="noise-background" aria-hidden="true">
       <EnhancedTVNoise />
-    </div>
+    </section>
+    
     <!-- Living room image with transparent TV screen on top -->
-    <img src="/living-room.png" alt="Living Room" class="room-image" />
+    <img 
+      src="/living-room.png" 
+      alt="Living Room with TV showing static noise" 
+      class="room-image"
+      loading="eager"
+      fetchpriority="high"
+    />
     
     <!-- Fullscreen button in case auto-fullscreen doesn't work -->
-    <button @click="toggleFullScreen" class="fullscreen-button">
+    <button 
+      @click="toggleFullScreen" 
+      class="fullscreen-button"
+      aria-label="Enter fullscreen mode"
+    >
       Fullscreen
     </button>
     
-    <!-- Copyright footer -->
-    <div class="copyright-footer">
-      <p>Created by <a href="https://www.0xechan.xyz" target="_blank">0xechan</a></p>
-    </div>
-  </div>
+    <!-- Copyright footer with improved semantics -->
+    <footer class="copyright-footer">
+      <p>Created by <a href="https://www.0xechan.xyz" target="_blank" rel="noopener noreferrer">0xechan</a></p>
+    </footer>
+  </main>
 </template>
 
 <style scoped>
