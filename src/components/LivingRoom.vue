@@ -33,6 +33,11 @@ onMounted(() => {
     <button @click="toggleFullScreen" class="fullscreen-button">
       Fullscreen
     </button>
+    
+    <!-- Copyright footer -->
+    <div class="copyright-footer">
+      <p>Created by <a href="https://www.0xechan.xyz" target="_blank">0xechan</a></p>
+    </div>
   </div>
 </template>
 
@@ -80,5 +85,32 @@ onMounted(() => {
 
 .fullscreen-button:hover {
   opacity: 1;
+}
+
+/* Copyright footer styles */
+.copyright-footer {
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 5;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+.copyright-footer p {
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0;
+}
+
+.copyright-footer a {
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.copyright-footer a:hover {
+  color: rgba(255, 255, 255, 0.7);
 }
 </style> 
