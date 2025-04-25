@@ -10,8 +10,10 @@ onMounted(() => {
   // Ensure all metadata is properly loaded
   const meta = document.querySelector('meta[name="description"]')
   if (meta) {
-    meta.setAttribute('content', 'Experience realistic, nostalgic TV static noise in a cozy living room setting. Perfect ambient display for relaxation or decoration.')
+    meta.setAttribute('content', 'Experience realistic, nostalgic TV static noise in a cozy living room setting with authentic TV static sound. Perfect ambient display for relaxation or decoration.')
   }
+  
+  // Note: Audio is handled by the TVAudio component in LivingRoom
 })
 </script>
 
